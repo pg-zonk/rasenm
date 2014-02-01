@@ -23,8 +23,8 @@
 #include <avr/interrupt.h>
 #include "Rasenmaeher.h"
 #include "AuswertungFernst.h"
-#include "AuswertungFernst_Fkt.c"
-#include "Rasenmaeher_Fun.c"
+//#include "AuswertungFernst_Fkt.c"
+//#include "Rasenmaeher_Fun.c"
 
 int main(void)
 {

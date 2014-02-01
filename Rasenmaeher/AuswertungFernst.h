@@ -25,18 +25,22 @@
 #define CH4_ok		4			//Diagnose Kanal 4
 #define CH5_ok		5			//Diagnose Kanal 5
 #define CH6_ok		6			//Diagnose Kanal 6
+#define Fail		7			//Verlangt Stop (mehr als 2 Kanäle versagen)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //Globale Variabeln
-uint8_t RemoteStatus;				//Flags für den Fernsteuereingang
-uint8_t RemoteChannel;				//Register für Kanalvorwahl
-uint8_t RemoteValue[6];				//Array für die Eingangswerte
-//uint8_t skip;						//Zählvariable zum überspringen der ersten PWm-Flanke
+uint8_t RemoteStatus;		//Flags für den Fernsteuereingang
+uint8_t RemoteChannel;		//Register für Kanalvorwahl
+uint8_t RemoteValue[6];		//Array für die Eingangswerte
+uint8_t RemoteSkip;			//Zählvariable zum überspringen der ersten PWM-Flanke
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //Konstruktoren
 
-void init(void);
+void RemoteInit(void);
 void startRemoteIn(void);
+uint8_t RemoteChannelFail(uint8_t RemoteChannel, uint8_t RemoteStatus);
+uint8_t RemoteChannelUnfail(uint8_t RemoteChannel, uint8_t RemoteStatus);
+uint8_t RemoteSignalTest(uint8_t RemoteStat);
 
 
