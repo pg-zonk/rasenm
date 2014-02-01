@@ -25,11 +25,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  10 .debug_frame  00000218  00000000  00000000  000019e0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_str    00000251  00000000  00000000  00001bf8  2**0
+ 11 .debug_str    00000257  00000000  00000000  00001bf8  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_loc    00000650  00000000  00000000  00001e49  2**0
+ 12 .debug_loc    00000650  00000000  00000000  00001e4f  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_ranges 000000a0  00000000  00000000  00002499  2**0
+ 13 .debug_ranges 000000a0  00000000  00000000  0000249f  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -85,48 +85,24 @@ Disassembly of section .text:
   78:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 0000007c <RemoteInit>:
-//Initialisierung
-
-void RemoteInit(void)
-{
-	//IOs initialisieren
-	DDRC |= (1<<PC7) | (1<<PC6) | (1<<PC5);		//PortC = Ausgang (PC5 - PC7 Kanalvorwahl auf Multiplexer)
   7c:	84 b3       	in	r24, 0x14	; 20
   7e:	80 6e       	ori	r24, 0xE0	; 224
   80:	84 bb       	out	0x14, r24	; 20
   82:	08 95       	ret
 
 00000084 <startRemoteIn>:
-///////////////////////////////////////////////////////////////////////////////////////////////
-//Einlesen der Fernsteuerungswerte starten
-
-void startRemoteIn(void)
-{
-	if(!(RemoteStatus & (1<<Busy)))				//Beginne zu Messen, sofern keine Messung im Gange
   84:	80 91 61 00 	lds	r24, 0x0061
   88:	80 fd       	sbrc	r24, 0
   8a:	39 c0       	rjmp	.+114    	; 0xfe <startRemoteIn+0x7a>
-	{
-		//uint16_t i;
-		
-		RemoteStatus |= (1<<Busy);				//Messflag setzen
   8c:	81 60       	ori	r24, 0x01	; 1
   8e:	80 93 61 00 	sts	0x0061, r24
-		RemoteChannel ++;						//Nächsten Kanal wählen
   92:	80 91 69 00 	lds	r24, 0x0069
   96:	8f 5f       	subi	r24, 0xFF	; 255
   98:	80 93 69 00 	sts	0x0069, r24
-		
-		if(RemoteChannel > 0x05)				//Überlauf der Kanalvorwahl
   9c:	86 30       	cpi	r24, 0x06	; 6
   9e:	18 f0       	brcs	.+6      	; 0xa6 <startRemoteIn+0x22>
-		{
-			RemoteChannel = 0x00;
   a0:	10 92 69 00 	sts	0x0069, r1
   a4:	0e c0       	rjmp	.+28     	; 0xc2 <startRemoteIn+0x3e>
-		}
-		
-		switch (RemoteChannel)					//Vorwahl ausgeben		
   a6:	82 30       	cpi	r24, 0x02	; 2
   a8:	91 f0       	breq	.+36     	; 0xce <startRemoteIn+0x4a>
   aa:	28 f4       	brcc	.+10     	; 0xb6 <startRemoteIn+0x32>
@@ -141,67 +117,41 @@ void startRemoteIn(void)
   bc:	85 30       	cpi	r24, 0x05	; 5
   be:	71 f4       	brne	.+28     	; 0xdc <startRemoteIn+0x58>
   c0:	0c c0       	rjmp	.+24     	; 0xda <startRemoteIn+0x56>
-		{																		//Kanalnummerierung als Grey-Code
-			case 0x00: PORTC &= ~((1<<PC7) | (1<<PC6) | (1<<PC5)); break;		//CH1 = 000
   c2:	85 b3       	in	r24, 0x15	; 21
   c4:	8f 71       	andi	r24, 0x1F	; 31
   c6:	85 bb       	out	0x15, r24	; 21
   c8:	09 c0       	rjmp	.+18     	; 0xdc <startRemoteIn+0x58>
-			case 0x01: PORTC |= (1<<PC5); break;								//CH2 = 001
   ca:	ad 9a       	sbi	0x15, 5	; 21
   cc:	07 c0       	rjmp	.+14     	; 0xdc <startRemoteIn+0x58>
-			case 0x02: PORTC |= (1<<PC6); break;								//CH3 = 011
   ce:	ae 9a       	sbi	0x15, 6	; 21
   d0:	05 c0       	rjmp	.+10     	; 0xdc <startRemoteIn+0x58>
-			case 0x03: PORTC &= ~(1<<PC5); break;								//CH4 = 010
   d2:	ad 98       	cbi	0x15, 5	; 21
   d4:	03 c0       	rjmp	.+6      	; 0xdc <startRemoteIn+0x58>
-			case 0x04: PORTC |= (1<<PC7); break;								//CH5 = 110
   d6:	af 9a       	sbi	0x15, 7	; 21
   d8:	01 c0       	rjmp	.+2      	; 0xdc <startRemoteIn+0x58>
-			case 0x05: PORTC |= (1<<PC5); break;								//CH6 = 111
   da:	ad 9a       	sbi	0x15, 5	; 21
-		}
-		
-		
-			
-		MCUCR |= (1<<ISC01) | (1<<ISC00);								//Interrupt bei steigender Flanke an INT0
   dc:	85 b7       	in	r24, 0x35	; 53
   de:	83 60       	ori	r24, 0x03	; 3
   e0:	85 bf       	out	0x35, r24	; 53
-		GICR |= (1<<INT0);												//Interrupts an INT0-Pin zulassen
   e2:	8b b7       	in	r24, 0x3b	; 59
   e4:	80 64       	ori	r24, 0x40	; 64
   e6:	8b bf       	out	0x3b, r24	; 59
-		//Timer 0 für Eingangskontrolle konfigurieren
-		TCCR0 &= ~((1<<CS02) | (1<<CS01) | (1<<CS00));
   e8:	83 b7       	in	r24, 0x33	; 51
   ea:	88 7f       	andi	r24, 0xF8	; 248
   ec:	83 bf       	out	0x33, r24	; 51
-		TCCR0 |= (1<<CS02);												//Prescaler = 64 (CS01 und CS00 gesetzt)
   ee:	83 b7       	in	r24, 0x33	; 51
   f0:	84 60       	ori	r24, 0x04	; 4
   f2:	83 bf       	out	0x33, r24	; 51
-		TCNT0 = 0x00;													//Vorladen des Timers auf 125 (0x82) ---> Nicht nötig, da schnell genug
   f4:	12 be       	out	0x32, r1	; 50
-		TIMSK |= (1<<TOIE0);											//Interrupt bei Timerüberlauf
   f6:	89 b7       	in	r24, 0x39	; 57
   f8:	81 60       	ori	r24, 0x01	; 1
   fa:	89 bf       	out	0x39, r24	; 57
-		sei();
   fc:	78 94       	sei
   fe:	08 95       	ret
 
 00000100 <RemoteChannelFail>:
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-//Störung melden
-uint8_t RemoteChannelFail(uint8_t RemoteChannel, uint8_t RemoteStatus)
-{
  100:	98 2f       	mov	r25, r24
  102:	86 2f       	mov	r24, r22
-	switch (RemoteChannel)					//Störungsflags setzen	(Störung wenn Flag gesetzt)
  104:	92 30       	cpi	r25, 0x02	; 2
  106:	81 f0       	breq	.+32     	; 0x128 <RemoteChannelFail+0x28>
  108:	28 f4       	brcc	.+10     	; 0x114 <RemoteChannelFail+0x14>
@@ -216,40 +166,22 @@ uint8_t RemoteChannelFail(uint8_t RemoteChannel, uint8_t RemoteStatus)
  11a:	95 30       	cpi	r25, 0x05	; 5
  11c:	61 f4       	brne	.+24     	; 0x136 <RemoteChannelFail+0x36>
  11e:	0a c0       	rjmp	.+20     	; 0x134 <RemoteChannelFail+0x34>
-	{
-		case 0x00: RemoteStatus |= (1<<CH1_ok); break;
  120:	82 60       	ori	r24, 0x02	; 2
  122:	08 95       	ret
-		case 0x01: RemoteStatus |= (1<<CH2_ok); break;
  124:	84 60       	ori	r24, 0x04	; 4
  126:	08 95       	ret
-		case 0x02: RemoteStatus |= (1<<CH3_ok); break;
  128:	88 60       	ori	r24, 0x08	; 8
  12a:	08 95       	ret
-		case 0x03: RemoteStatus |= (1<<CH4_ok); break;
  12c:	80 61       	ori	r24, 0x10	; 16
  12e:	08 95       	ret
-		case 0x04: RemoteStatus |= (1<<CH5_ok); break;
  130:	80 62       	ori	r24, 0x20	; 32
  132:	08 95       	ret
-		case 0x05: RemoteStatus |= (1<<CH6_ok); break;
  134:	80 64       	ori	r24, 0x40	; 64
-		default: break;
-	}
-	
-	return RemoteStatus;
-}
  136:	08 95       	ret
 
 00000138 <RemoteChannelUnfail>:
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-//Störung aufheben
-uint8_t RemoteChannelUnfail(uint8_t RemoteChannel, uint8_t RemoteStatus)
-{
  138:	98 2f       	mov	r25, r24
  13a:	86 2f       	mov	r24, r22
-	switch (RemoteChannel)					//Störungsflags löschen	(Störung wenn Flag gesetzt)
  13c:	92 30       	cpi	r25, 0x02	; 2
  13e:	81 f0       	breq	.+32     	; 0x160 <RemoteChannelUnfail+0x28>
  140:	28 f4       	brcc	.+10     	; 0x14c <RemoteChannelUnfail+0x14>
@@ -264,38 +196,20 @@ uint8_t RemoteChannelUnfail(uint8_t RemoteChannel, uint8_t RemoteStatus)
  152:	95 30       	cpi	r25, 0x05	; 5
  154:	61 f4       	brne	.+24     	; 0x16e <RemoteChannelUnfail+0x36>
  156:	0a c0       	rjmp	.+20     	; 0x16c <RemoteChannelUnfail+0x34>
-	{
-		case 0x00: RemoteStatus &= ~(1<<CH1_ok); break;
  158:	8d 7f       	andi	r24, 0xFD	; 253
  15a:	08 95       	ret
-		case 0x01: RemoteStatus &= ~(1<<CH2_ok); break;
  15c:	8b 7f       	andi	r24, 0xFB	; 251
  15e:	08 95       	ret
-		case 0x02: RemoteStatus &= ~(1<<CH3_ok); break;
  160:	87 7f       	andi	r24, 0xF7	; 247
  162:	08 95       	ret
-		case 0x03: RemoteStatus &= ~(1<<CH4_ok); break;
  164:	8f 7e       	andi	r24, 0xEF	; 239
  166:	08 95       	ret
-		case 0x04: RemoteStatus &= ~(1<<CH5_ok); break;
  168:	8f 7d       	andi	r24, 0xDF	; 223
  16a:	08 95       	ret
-		case 0x05: RemoteStatus &= ~(1<<CH6_ok); break;
  16c:	8f 7b       	andi	r24, 0xBF	; 191
-		default: break;
-	}
-	
-	return RemoteStatus;
-}
  16e:	08 95       	ret
 
 00000170 <__vector_1>:
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-//ISR für die Zeitmessung des Servosignals
-
-ISR(INT0_vect)
-{
  170:	1f 92       	push	r1
  172:	0f 92       	push	r0
  174:	0f b6       	in	r0, 0x3f	; 63
@@ -313,68 +227,37 @@ ISR(INT0_vect)
  18c:	bf 93       	push	r27
  18e:	ef 93       	push	r30
  190:	ff 93       	push	r31
-	uint8_t i;										//Arbeitsvariable
-	
-	
-	i = MCUCR & 0b00000011;							//Bitmaske von MCUCR erzeugen [00000011] (Die beiden letzten Bits für INT0)
  192:	85 b7       	in	r24, 0x35	; 53
  194:	83 70       	andi	r24, 0x03	; 3
-	
-	if(i == 0b00000011)								//Wenn Interrupt bei steigender Flanke an INT0...
  196:	83 30       	cpi	r24, 0x03	; 3
  198:	d9 f4       	brne	.+54     	; 0x1d0 <__vector_1+0x60>
-	{
-		cli();										//Interrupts global deaktivieren
  19a:	f8 94       	cli
-		
-		if(RemoteSkip == 0x01)						//Erster Eingangsimpuls überspringen
  19c:	80 91 68 00 	lds	r24, 0x0068
  1a0:	81 30       	cpi	r24, 0x01	; 1
  1a2:	81 f4       	brne	.+32     	; 0x1c4 <__vector_1+0x54>
-		{
-			TIMSK &= ~(1<<TOIE0);						//Kein Interrupt bei Timeroverflow des Timer 0
  1a4:	89 b7       	in	r24, 0x39	; 57
  1a6:	8e 7f       	andi	r24, 0xFE	; 254
  1a8:	89 bf       	out	0x39, r24	; 57
-			TCCR0 &= ~((1<<CS02) | (1<<CS01) | (1<<CS00));
  1aa:	83 b7       	in	r24, 0x33	; 51
  1ac:	88 7f       	andi	r24, 0xF8	; 248
  1ae:	83 bf       	out	0x33, r24	; 51
-			TCCR0 |= (1<<CS01);							//Prescaler des Timer0 = 8
  1b0:	83 b7       	in	r24, 0x33	; 51
  1b2:	82 60       	ori	r24, 0x02	; 2
  1b4:	83 bf       	out	0x33, r24	; 51
-			TCNT0 = 0x00;								//Timer0 auf null setzen
  1b6:	12 be       	out	0x32, r1	; 50
-			MCUCR &= ~(1<<ISC00);						//Interrupt wenn fallende Flanke an INT0
  1b8:	85 b7       	in	r24, 0x35	; 53
  1ba:	8e 7f       	andi	r24, 0xFE	; 254
  1bc:	85 bf       	out	0x35, r24	; 53
-			RemoteSkip = 0x00;
  1be:	10 92 68 00 	sts	0x0068, r1
  1c2:	04 c0       	rjmp	.+8      	; 0x1cc <__vector_1+0x5c>
-		}
-		else
-		{
-			TCNT0 = 0x00;								//Timer0 wieder auf 0 setzen
  1c4:	12 be       	out	0x32, r1	; 50
-			RemoteSkip = 0x01;							//Beim nächsten Impuls mit Auswertung beginnen
  1c6:	81 e0       	ldi	r24, 0x01	; 1
  1c8:	80 93 68 00 	sts	0x0068, r24
-		}
-		
-		
-		sei();										//Interrupts global aktivieren
  1cc:	78 94       	sei
  1ce:	18 c0       	rjmp	.+48     	; 0x200 <__vector_1+0x90>
-	}
-	else if(i == 0b00000010)						//Wenn Interrupt bei fallender Flanke an INT0...
  1d0:	82 30       	cpi	r24, 0x02	; 2
  1d2:	b1 f4       	brne	.+44     	; 0x200 <__vector_1+0x90>
-	{
-		cli();
  1d4:	f8 94       	cli
-		RemoteValue[RemoteChannel] = TCNT0;			//Gemessener Wert abspeichern im entsprechenden Arrayplatz
  1d6:	92 b7       	in	r25, 0x32	; 50
  1d8:	80 91 69 00 	lds	r24, 0x0069
  1dc:	e8 2f       	mov	r30, r24
@@ -382,22 +265,15 @@ ISR(INT0_vect)
  1e0:	ee 59       	subi	r30, 0x9E	; 158
  1e2:	ff 4f       	sbci	r31, 0xFF	; 255
  1e4:	90 83       	st	Z, r25
-		RemoteStatus &= ~(1<<Busy);					//Messflag löschen
  1e6:	60 91 61 00 	lds	r22, 0x0061
  1ea:	6e 7f       	andi	r22, 0xFE	; 254
  1ec:	60 93 61 00 	sts	0x0061, r22
-		GICR &= ~(1<<INT0);							//Interrupt an INT0 verbieten
  1f0:	9b b7       	in	r25, 0x3b	; 59
  1f2:	9f 7b       	andi	r25, 0xBF	; 191
  1f4:	9b bf       	out	0x3b, r25	; 59
-		RemoteStatus = RemoteChannelUnfail(RemoteChannel, RemoteStatus); //Störungen aufheben
  1f6:	0e 94 9c 00 	call	0x138	; 0x138 <RemoteChannelUnfail>
  1fa:	80 93 61 00 	sts	0x0061, r24
-		sei();
  1fe:	78 94       	sei
-		
-	}
-}
  200:	ff 91       	pop	r31
  202:	ef 91       	pop	r30
  204:	bf 91       	pop	r27
@@ -417,12 +293,6 @@ ISR(INT0_vect)
  220:	18 95       	reti
 
 00000222 <__vector_9>:
-///////////////////////////////////////////////////////////////////////////////////////////////
-//ISR für den Timer0. Überlauf bedeutet dass der Kanal nicht verfügbar ist und wird vermerkt.
-//Gelegentliche Überläufe können passieren und werden durch die Funktion RemoteSignalTest() abgefangen
-
-ISR(TIMER0_OVF_vect)
-{
  222:	1f 92       	push	r1
  224:	0f 92       	push	r0
  226:	0f b6       	in	r0, 0x3f	; 63
@@ -440,42 +310,26 @@ ISR(TIMER0_OVF_vect)
  23e:	bf 93       	push	r27
  240:	ef 93       	push	r30
  242:	ff 93       	push	r31
-	static uint8_t ovf_Cntr;										//Zählvariable für die Timerüberläufe
-	
-	cli();
  244:	f8 94       	cli
-	
-	if(ovf_Cntr > 0x0F)
  246:	80 91 60 00 	lds	r24, 0x0060
  24a:	80 31       	cpi	r24, 0x10	; 16
  24c:	98 f0       	brcs	.+38     	; 0x274 <__vector_9+0x52>
-	{
-		RemoteStatus &= ~(1<<Busy);									//Messflag löschen, da kein Signal an diesem Eingang
  24e:	60 91 61 00 	lds	r22, 0x0061
  252:	6e 7f       	andi	r22, 0xFE	; 254
  254:	60 93 61 00 	sts	0x0061, r22
-		GICR &= ~(1<<INT0);											//Interrupts an INT0 deaktivieren
  258:	8b b7       	in	r24, 0x3b	; 59
  25a:	8f 7b       	andi	r24, 0xBF	; 191
  25c:	8b bf       	out	0x3b, r24	; 59
-		TIMSK &= ~(1<<TOIE0);										//Interrupt bei Timerüberlauf verbieten
  25e:	89 b7       	in	r24, 0x39	; 57
  260:	8e 7f       	andi	r24, 0xFE	; 254
  262:	89 bf       	out	0x39, r24	; 57
-		//RemoteValue[RemoteChannel] = 0xFF;						//Kanal abschalten
-		RemoteStatus = RemoteChannelFail(RemoteChannel,RemoteStatus);		//Störung am Kanal
  264:	80 91 69 00 	lds	r24, 0x0069
  268:	0e 94 80 00 	call	0x100	; 0x100 <RemoteChannelFail>
  26c:	80 93 61 00 	sts	0x0061, r24
-		ovf_Cntr = 0x00;
  270:	10 92 60 00 	sts	0x0060, r1
-	}
-	ovf_Cntr ++;
  274:	80 91 60 00 	lds	r24, 0x0060
  278:	8f 5f       	subi	r24, 0xFF	; 255
  27a:	80 93 60 00 	sts	0x0060, r24
-	
-	sei();
  27e:	78 94       	sei
  280:	ff 91       	pop	r31
  282:	ef 91       	pop	r30
@@ -539,10 +393,10 @@ TIMSK |= (1<<TOIE2);							//Interrupt erlauben bei Overflow
  2c6:	89 bf       	out	0x39, r24	; 57
 
 //Timer 1 initialisieren für Fahrmotoransteuerung
-//Fast PWM 8Bit inverting mode
-TCCR1A |= (1<<COM1A1) | (1<<COM1B1) | (1<<WGM10) | (1<<COM1A0) | (1<<COM1B0);
+//Fast PWM 8Bit non-inverting mode
+TCCR1A |= (1<<COM1A1) | (1<<COM1B1) | (1<<WGM10);
  2c8:	8f b5       	in	r24, 0x2f	; 47
- 2ca:	81 6f       	ori	r24, 0xF1	; 241
+ 2ca:	81 6a       	ori	r24, 0xA1	; 161
  2cc:	8f bd       	out	0x2f, r24	; 47
 TCCR1A &= ~((1<<WGM11));
  2ce:	8f b5       	in	r24, 0x2f	; 47

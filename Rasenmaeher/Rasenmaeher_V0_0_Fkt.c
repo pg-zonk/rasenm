@@ -48,8 +48,8 @@ TCCR2 |= (1<<CS22) | (1<<CS21) | (1<<CS20);		//Prescaler = 1024 // fTimer2 = ca.
 TIMSK |= (1<<TOIE2);							//Interrupt erlauben bei Overflow
 
 //Timer 1 initialisieren für Fahrmotoransteuerung
-//Fast PWM 8Bit inverting mode
-TCCR1A |= (1<<COM1A1) | (1<<COM1B1) | (1<<WGM10) | (1<<COM1A0) | (1<<COM1B0);
+//Fast PWM 8Bit non-inverting mode
+TCCR1A |= (1<<COM1A1) | (1<<COM1B1) | (1<<WGM10);
 TCCR1A &= ~((1<<WGM11));
 TCCR1B |= (1<<WGM12);
 TCCR1B &= ~(1<<WGM13);

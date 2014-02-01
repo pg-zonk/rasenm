@@ -439,12 +439,12 @@ LOAD c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.2.939/avr8
  .debug_frame   0x00000000      0x114 AuswertungFernst_Fkt.o
  .debug_frame   0x00000114      0x104 Rasenmaeher_V0_0.o
 
-.debug_str      0x00000000      0x251
+.debug_str      0x00000000      0x257
  *(.debug_str)
  .debug_str     0x00000000      0x16b AuswertungFernst_Fkt.o
                                 0x19f (size before relaxing)
- .debug_str     0x0000016b       0xe6 Rasenmaeher_V0_0.o
-                                0x1cd (size before relaxing)
+ .debug_str     0x0000016b       0xec Rasenmaeher_V0_0.o
+                                0x1d3 (size before relaxing)
 
 .debug_loc      0x00000000      0x650
  *(.debug_loc)
