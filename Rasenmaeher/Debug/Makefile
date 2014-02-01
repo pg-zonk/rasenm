@@ -37,8 +37,7 @@ SUBDIRS :=
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
 ../AuswertungFernst_Fkt.c \
-../Rasenmaeher.c \
-../Rasenmaeher_Fun.c
+../Rasenmaeher_V0_0.c
 
 
 PREPROCESSING_SRCS += 
@@ -49,27 +48,23 @@ ASM_SRCS +=
 
 OBJS +=  \
 AuswertungFernst_Fkt.o \
-Rasenmaeher.o \
-Rasenmaeher_Fun.o
+Rasenmaeher_V0_0.o
 
 OBJS_AS_ARGS +=  \
 AuswertungFernst_Fkt.o \
-Rasenmaeher.o \
-Rasenmaeher_Fun.o
+Rasenmaeher_V0_0.o
 
 C_DEPS +=  \
 AuswertungFernst_Fkt.d \
-Rasenmaeher.d \
-Rasenmaeher_Fun.d
+Rasenmaeher_V0_0.d
 
 C_DEPS_AS_ARGS +=  \
 AuswertungFernst_Fkt.d \
-Rasenmaeher.d \
-Rasenmaeher_Fun.d
+Rasenmaeher_V0_0.d
 
-OUTPUT_FILE_PATH +=Rasenmaeher.elf
+OUTPUT_FILE_PATH +=Rasenmaeher_V0_0.elf
 
-OUTPUT_FILE_PATH_AS_ARGS +=Rasenmaeher.elf
+OUTPUT_FILE_PATH_AS_ARGS +=Rasenmaeher_V0_0.elf
 
 ADDITIONAL_DEPENDENCIES:=
 
@@ -83,12 +78,10 @@ LIB_DEP+=
 
 
 
-
-
 ./%.o: .././%.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 3.4.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega16 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -funsigned-char -funsigned-bitfields -DDEBUG  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega16a -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<"
 	@echo Finished building: $<
 	
 
@@ -117,13 +110,13 @@ all: $(OUTPUT_FILE_PATH) $(ADDITIONAL_DEPENDENCIES)
 $(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP) $(LIB_DEP)
 	@echo Building target: $@
 	@echo Invoking: AVR/GNU Linker : 3.4.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE) -o$(OUTPUT_FILE_PATH_AS_ARGS) $(OBJS_AS_ARGS) $(USER_OBJS) $(LIBS) -Wl,-Map="Rasenmaeher.map" -Wl,--start-group -Wl,-lm  -Wl,--end-group -Wl,--gc-sections -mmcu=atmega16 
+	$(QUOTE)C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE) -o$(OUTPUT_FILE_PATH_AS_ARGS) $(OBJS_AS_ARGS) $(USER_OBJS) $(LIBS) -Wl,-Map="Rasenmaeher_V0_0.map" -Wl,--start-group -Wl,-lm  -Wl,--end-group -Wl,--gc-sections -mmcu=atmega16a 
 	@echo Finished building target: $@
-	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-objcopy.exe" -O ihex -R .eeprom -R .fuse -R .lock -R .signature  "Rasenmaeher.elf" "Rasenmaeher.hex"
-	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-objcopy.exe" -j .eeprom  --set-section-flags=.eeprom=alloc,load --change-section-lma .eeprom=0  --no-change-warnings -O ihex "Rasenmaeher.elf" "Rasenmaeher.eep" || exit 0
-	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-objdump.exe" -h -S "Rasenmaeher.elf" > "Rasenmaeher.lss"
-	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-objcopy.exe" -O srec -R .eeprom -R .fuse -R .lock -R .signature  "Rasenmaeher.elf" "Rasenmaeher.srec"
-	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-size.exe" "Rasenmaeher.elf"
+	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-objcopy.exe" -O ihex -R .eeprom -R .fuse -R .lock -R .signature  "Rasenmaeher_V0_0.elf" "Rasenmaeher_V0_0.hex"
+	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-objcopy.exe" -j .eeprom  --set-section-flags=.eeprom=alloc,load --change-section-lma .eeprom=0  --no-change-warnings -O ihex "Rasenmaeher_V0_0.elf" "Rasenmaeher_V0_0.eep" || exit 0
+	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-objdump.exe" -h -S "Rasenmaeher_V0_0.elf" > "Rasenmaeher_V0_0.lss"
+	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-objcopy.exe" -O srec -R .eeprom -R .fuse -R .lock -R .signature  "Rasenmaeher_V0_0.elf" "Rasenmaeher_V0_0.srec"
+	"C:\Program Files (x86)\Atmel\Atmel Toolchain\AVR8 GCC\Native\3.4.2.939\avr8-gnu-toolchain\bin\avr-size.exe" "Rasenmaeher_V0_0.elf"
 	
 	
 
@@ -135,5 +128,5 @@ $(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP) $(LIB_DEP)
 clean:
 	-$(RM) $(OBJS_AS_ARGS) $(EXECUTABLES)  
 	-$(RM) $(C_DEPS_AS_ARGS)   
-	rm -rf "Rasenmaeher.elf" "Rasenmaeher.a" "Rasenmaeher.hex" "Rasenmaeher.lss" "Rasenmaeher.eep" "Rasenmaeher.map" "Rasenmaeher.srec"
+	rm -rf "Rasenmaeher_V0_0.elf" "Rasenmaeher_V0_0.a" "Rasenmaeher_V0_0.hex" "Rasenmaeher_V0_0.lss" "Rasenmaeher_V0_0.eep" "Rasenmaeher_V0_0.map" "Rasenmaeher_V0_0.srec"
 	

@@ -1,35 +1,35 @@
 
-Rasenmaeher.elf:     file format elf32-avr
+Rasenmaeher_V0_0.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         00000300  00000000  00000000  00000094  2**1
+  0 .text         00000402  00000000  00000000  00000094  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000000  00800060  00000300  00000394  2**0
+  1 .data         00000000  00800060  00000402  00000496  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .bss          0000000a  00800060  00800060  00000394  2**0
+  2 .bss          00000010  00800060  00800060  00000496  2**0
                   ALLOC
-  3 .stab         000006cc  00000000  00000000  00000394  2**2
+  3 .stab         000006cc  00000000  00000000  00000498  2**2
                   CONTENTS, READONLY, DEBUGGING
-  4 .stabstr      00000097  00000000  00000000  00000a60  2**0
+  4 .stabstr      00000097  00000000  00000000  00000b64  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .comment      0000002f  00000000  00000000  00000af7  2**0
+  5 .comment      0000002f  00000000  00000000  00000bfb  2**0
                   CONTENTS, READONLY
-  6 .debug_aranges 00000090  00000000  00000000  00000b26  2**0
+  6 .debug_aranges 000000c0  00000000  00000000  00000c2a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_info   0000041c  00000000  00000000  00000bb6  2**0
+  7 .debug_info   0000060b  00000000  00000000  00000cea  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_abbrev 00000224  00000000  00000000  00000fd2  2**0
+  8 .debug_abbrev 000002ac  00000000  00000000  000012f5  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_line   0000037a  00000000  00000000  000011f6  2**0
+  9 .debug_line   0000043e  00000000  00000000  000015a1  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_frame  0000015c  00000000  00000000  00001570  2**2
+ 10 .debug_frame  00000218  00000000  00000000  000019e0  2**2
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_str    00000193  00000000  00000000  000016cc  2**0
+ 11 .debug_str    00000251  00000000  00000000  00001bf8  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_loc    00000375  00000000  00000000  0000185f  2**0
+ 12 .debug_loc    00000650  00000000  00000000  00001e49  2**0
                   CONTENTS, READONLY, DEBUGGING
- 13 .debug_ranges 00000060  00000000  00000000  00001bd4  2**0
+ 13 .debug_ranges 000000a0  00000000  00000000  00002499  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -39,7 +39,7 @@ Disassembly of section .text:
    4:	0c 94 b8 00 	jmp	0x170	; 0x170 <__vector_1>
    8:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
    c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
-  10:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
+  10:	0c 94 d6 01 	jmp	0x3ac	; 0x3ac <__vector_4>
   14:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
   18:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
   1c:	0c 94 3c 00 	jmp	0x78	; 0x78 <__bad_interrupt>
@@ -75,11 +75,11 @@ Disassembly of section .text:
   68:	1d 92       	st	X+, r1
 
 0000006a <.do_clear_bss_start>:
-  6a:	aa 36       	cpi	r26, 0x6A	; 106
+  6a:	a0 37       	cpi	r26, 0x70	; 112
   6c:	b2 07       	cpc	r27, r18
   6e:	e1 f7       	brne	.-8      	; 0x68 <.do_clear_bss_loop>
-  70:	0e 94 51 01 	call	0x2a2	; 0x2a2 <main>
-  74:	0c 94 7e 01 	jmp	0x2fc	; 0x2fc <_exit>
+  70:	0e 94 f6 01 	call	0x3ec	; 0x3ec <main>
+  74:	0c 94 ff 01 	jmp	0x3fe	; 0x3fe <_exit>
 
 00000078 <__bad_interrupt>:
   78:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -495,100 +495,380 @@ ISR(TIMER0_OVF_vect)
  29e:	1f 90       	pop	r1
  2a0:	18 95       	reti
 
-000002a2 <main>:
-//#include "AuswertungFernst_Fkt.c"
-//#include "Rasenmaeher_Fun.c"
+000002a2 <init_All>:
+{
+
+//I/Os initialisieren																  
+
+//Port B
+DDRB |= (1<<Qx_MLP_GenOK) | (1<<Qx_GenEin);											//Ausgänge
+ 2a2:	87 b3       	in	r24, 0x17	; 23
+ 2a4:	88 68       	ori	r24, 0x88	; 136
+ 2a6:	87 bb       	out	0x17, r24	; 23
+DDRB &= ~((1<<IxEntpan) | (1<<IxLadekon) | (1<<IxGenStart) | (1<<IxBenzMotAus));	//Eingänge
+ 2a8:	87 b3       	in	r24, 0x17	; 23
+ 2aa:	8c 7c       	andi	r24, 0xCC	; 204
+ 2ac:	87 bb       	out	0x17, r24	; 23
+
+//Port C
+DDRC |= (1<<Qx_Fahrr_Seilw) | (1<<Qx_Fahrr_links) | (1<<Qx_Fahrr_rechts);			//Ausgänge
+ 2ae:	84 b3       	in	r24, 0x14	; 20
+ 2b0:	8c 61       	ori	r24, 0x1C	; 28
+ 2b2:	84 bb       	out	0x14, r24	; 20
+//--> Ausgänge für die Funkkanalvorwahl werden in "AuswertungFernst_Fkt.c" initialisiert
+
+//Port C hat keine Eingangspins
+
+//Port D
+DDRD |= (1<<Qx_MLP_Stoer) | (1<<Qx_BenzMotEin) | (1<<Qpwm_FML) | (1<<Qpwm_FMR);		//Ausgänge
+ 2b4:	81 b3       	in	r24, 0x11	; 17
+ 2b6:	82 67       	ori	r24, 0x72	; 114
+ 2b8:	81 bb       	out	0x11, r24	; 17
+DDRD &= ~(1<<Qx_BenzMotEin);														//Eingänge
+ 2ba:	8e 98       	cbi	0x11, 6	; 17
+
+//Timer 2 initialisieren für Zeitverzögerung (Allgemeiner Timer)
+
+TCCR2 |= (1<<CS22) | (1<<CS21) | (1<<CS20);		//Prescaler = 1024 // fTimer2 = ca. 4Hz
+ 2bc:	85 b5       	in	r24, 0x25	; 37
+ 2be:	87 60       	ori	r24, 0x07	; 7
+ 2c0:	85 bd       	out	0x25, r24	; 37
+TIMSK |= (1<<TOIE2);							//Interrupt erlauben bei Overflow
+ 2c2:	89 b7       	in	r24, 0x39	; 57
+ 2c4:	80 64       	ori	r24, 0x40	; 64
+ 2c6:	89 bf       	out	0x39, r24	; 57
+
+//Timer 1 initialisieren für Fahrmotoransteuerung
+//Fast PWM 8Bit inverting mode
+TCCR1A |= (1<<COM1A1) | (1<<COM1B1) | (1<<WGM10) | (1<<COM1A0) | (1<<COM1B0);
+ 2c8:	8f b5       	in	r24, 0x2f	; 47
+ 2ca:	81 6f       	ori	r24, 0xF1	; 241
+ 2cc:	8f bd       	out	0x2f, r24	; 47
+TCCR1A &= ~((1<<WGM11));
+ 2ce:	8f b5       	in	r24, 0x2f	; 47
+ 2d0:	8d 7f       	andi	r24, 0xFD	; 253
+ 2d2:	8f bd       	out	0x2f, r24	; 47
+TCCR1B |= (1<<WGM12);
+ 2d4:	8e b5       	in	r24, 0x2e	; 46
+ 2d6:	88 60       	ori	r24, 0x08	; 8
+ 2d8:	8e bd       	out	0x2e, r24	; 46
+TCCR1B &= ~(1<<WGM13);
+ 2da:	8e b5       	in	r24, 0x2e	; 46
+ 2dc:	8f 7e       	andi	r24, 0xEF	; 239
+ 2de:	8e bd       	out	0x2e, r24	; 46
+
+//Prescaler = 8 --> fPWM = 490Hz
+TCCR1B |= (1<<CS11);
+ 2e0:	8e b5       	in	r24, 0x2e	; 46
+ 2e2:	82 60       	ori	r24, 0x02	; 2
+ 2e4:	8e bd       	out	0x2e, r24	; 46
+TCCR1B &= ~((1<<CS12) | (1<<CS10));
+ 2e6:	8e b5       	in	r24, 0x2e	; 46
+ 2e8:	8a 7f       	andi	r24, 0xFA	; 250
+ 2ea:	8e bd       	out	0x2e, r24	; 46
+
+//Fernsteuerungsauswertung initialisieren
+RemoteInit();									
+ 2ec:	0e 94 3e 00 	call	0x7c	; 0x7c <RemoteInit>
+ 2f0:	08 95       	ret
+
+000002f2 <updateFahrmot>:
+	uint8_t outvalFMR = 0x00;		//PWM-Wert für Fahrmot links (rechts = OC1B)
+	
+	//========================================================================================
+	//Fahrmotor links
+	
+	if((RemoteValue[3] > 178) & (RemoteValue[3] < 198))	//Nullstellung
+ 2f2:	80 91 65 00 	lds	r24, 0x0065
+ 2f6:	98 2f       	mov	r25, r24
+ 2f8:	93 5b       	subi	r25, 0xB3	; 179
+ 2fa:	93 31       	cpi	r25, 0x13	; 19
+ 2fc:	20 f1       	brcs	.+72     	; 0x346 <updateFahrmot+0x54>
+	{
+		outvalFML = 0x00;		//Mittelstellung: Motor anhalten
+	}
+	else if((RemoteValue[3] > 237) & (RemoteValue[3] < 255))				//Fahren vorwärts Maximum (ex 0x241)
+ 2fe:	9b 53       	subi	r25, 0x3B	; 59
+ 300:	91 31       	cpi	r25, 0x11	; 17
+ 302:	18 f4       	brcc	.+6      	; 0x30a <updateFahrmot+0x18>
+	{
+		outvalFML = 0xFE;						//Maximale Fahrstufe (PWM muss immer da sein)
+		PORTC |= (1<<Qx_Fahrr_links);			//Fahrrichtung vorwärts: Pin = High
+ 304:	ab 9a       	sbi	0x15, 3	; 21
+	{
+		outvalFML = 0x00;		//Mittelstellung: Motor anhalten
+	}
+	else if((RemoteValue[3] > 237) & (RemoteValue[3] < 255))				//Fahren vorwärts Maximum (ex 0x241)
+	{
+		outvalFML = 0xFE;						//Maximale Fahrstufe (PWM muss immer da sein)
+ 306:	2e ef       	ldi	r18, 0xFE	; 254
+ 308:	21 c0       	rjmp	.+66     	; 0x34c <updateFahrmot+0x5a>
+		PORTC |= (1<<Qx_Fahrr_links);			//Fahrrichtung vorwärts: Pin = High
+	}
+	else if((RemoteValue[3] < 139) & (RemoteValue[3] > 47))				//Fahrrichtung retour Maximum
+ 30a:	98 2f       	mov	r25, r24
+ 30c:	90 53       	subi	r25, 0x30	; 48
+ 30e:	9b 35       	cpi	r25, 0x5B	; 91
+ 310:	18 f4       	brcc	.+6      	; 0x318 <updateFahrmot+0x26>
+	{
+		outvalFML = 0xFE;						//Maximale Fahrstufe (PWM muss immer da sein)
+		PORTC &= ~(1<<Qx_Fahrr_links);			//Fahrrichtung retour: Pin = Low
+ 312:	ab 98       	cbi	0x15, 3	; 21
+		outvalFML = 0xFE;						//Maximale Fahrstufe (PWM muss immer da sein)
+		PORTC |= (1<<Qx_Fahrr_links);			//Fahrrichtung vorwärts: Pin = High
+	}
+	else if((RemoteValue[3] < 139) & (RemoteValue[3] > 47))				//Fahrrichtung retour Maximum
+	{
+		outvalFML = 0xFE;						//Maximale Fahrstufe (PWM muss immer da sein)
+ 314:	2e ef       	ldi	r18, 0xFE	; 254
+ 316:	1a c0       	rjmp	.+52     	; 0x34c <updateFahrmot+0x5a>
+		PORTC &= ~(1<<Qx_Fahrr_links);			//Fahrrichtung retour: Pin = Low
+	}
+	else if((RemoteValue[3] >= 198) & (RemoteValue[3] <= 237))				//Fahren vorwärts
+ 318:	98 2f       	mov	r25, r24
+ 31a:	96 5c       	subi	r25, 0xC6	; 198
+ 31c:	98 32       	cpi	r25, 0x28	; 40
+ 31e:	38 f4       	brcc	.+14     	; 0x32e <updateFahrmot+0x3c>
+	{
+		outvalFML = 6*(RemoteValue[3]-0xc6);	//PWM-Wert = 6*(Kanalwert - 198)
+ 320:	28 2f       	mov	r18, r24
+ 322:	22 0f       	add	r18, r18
+ 324:	28 0f       	add	r18, r24
+ 326:	22 0f       	add	r18, r18
+ 328:	24 5a       	subi	r18, 0xA4	; 164
+		PORTC |= (1<<Qx_Fahrr_links);			//Fahrrichtung vorwärts: Pin = High
+ 32a:	ab 9a       	sbi	0x15, 3	; 21
+ 32c:	0f c0       	rjmp	.+30     	; 0x34c <updateFahrmot+0x5a>
+	}
+	else if((RemoteValue[3] <= 178) & (RemoteValue[3] >= 139))				//Fahren retour
+ 32e:	98 2f       	mov	r25, r24
+ 330:	9b 58       	subi	r25, 0x8B	; 139
+ 332:	98 32       	cpi	r25, 0x28	; 40
+ 334:	50 f4       	brcc	.+20     	; 0x34a <updateFahrmot+0x58>
+	{
+		outvalFML = 6*(0xb2-RemoteValue[3]);	//PWM-Wert = 6*(178 - Kanalwert)
+ 336:	28 2f       	mov	r18, r24
+ 338:	22 0f       	add	r18, r18
+ 33a:	28 0f       	add	r18, r24
+ 33c:	22 0f       	add	r18, r18
+ 33e:	21 95       	neg	r18
+ 340:	24 5d       	subi	r18, 0xD4	; 212
+		PORTC &= ~(1<<Qx_Fahrr_links);			//Fahrrichtung retour: Pin = Low
+ 342:	ab 98       	cbi	0x15, 3	; 21
+ 344:	03 c0       	rjmp	.+6      	; 0x34c <updateFahrmot+0x5a>
+	//========================================================================================
+	//Fahrmotor links
+	
+	if((RemoteValue[3] > 178) & (RemoteValue[3] < 198))	//Nullstellung
+	{
+		outvalFML = 0x00;		//Mittelstellung: Motor anhalten
+ 346:	20 e0       	ldi	r18, 0x00	; 0
+ 348:	01 c0       	rjmp	.+2      	; 0x34c <updateFahrmot+0x5a>
+//============================================================================================
+//Aus Fernsteuersignal Stromrichteransteuerung berechnen und ausgeben
+
+void updateFahrmot(void)
+{
+	uint8_t outvalFML = 0x00;		//PWM-Wert für Fahrmot links (links = OC1A)
+ 34a:	20 e0       	ldi	r18, 0x00	; 0
+	}
+	
+	//========================================================================================
+	//Fahrmotor rechts
+	
+	if((RemoteValue[4] > 178) & (RemoteValue[4] < 198))	//Nullstellung
+ 34c:	80 91 66 00 	lds	r24, 0x0066
+ 350:	98 2f       	mov	r25, r24
+ 352:	93 5b       	subi	r25, 0xB3	; 179
+ 354:	93 31       	cpi	r25, 0x13	; 19
+ 356:	20 f1       	brcs	.+72     	; 0x3a0 <updateFahrmot+0xae>
+	{
+		outvalFMR = 0x00;		//Mittelstellung: Motor anhalten
+	}
+	else if((RemoteValue[4] > 237) & (RemoteValue[4] < 255))				//Fahren vorwärts Maximum (ex 0x241)
+ 358:	9b 53       	subi	r25, 0x3B	; 59
+ 35a:	91 31       	cpi	r25, 0x11	; 17
+ 35c:	18 f4       	brcc	.+6      	; 0x364 <updateFahrmot+0x72>
+	{
+		outvalFMR = 0xFE;						//Maximale Fahrstufe (PWM muss immer da sein)
+		PORTC |= (1<<Qx_Fahrr_rechts);			//Fahrrichtung vorwärts: Pin = High
+ 35e:	ac 9a       	sbi	0x15, 4	; 21
+	{
+		outvalFMR = 0x00;		//Mittelstellung: Motor anhalten
+	}
+	else if((RemoteValue[4] > 237) & (RemoteValue[4] < 255))				//Fahren vorwärts Maximum (ex 0x241)
+	{
+		outvalFMR = 0xFE;						//Maximale Fahrstufe (PWM muss immer da sein)
+ 360:	8e ef       	ldi	r24, 0xFE	; 254
+ 362:	21 c0       	rjmp	.+66     	; 0x3a6 <updateFahrmot+0xb4>
+		PORTC |= (1<<Qx_Fahrr_rechts);			//Fahrrichtung vorwärts: Pin = High
+	}
+	else if((RemoteValue[4] < 139) & (RemoteValue[4] > 47))				//Fahrrichtung retour Maximum
+ 364:	98 2f       	mov	r25, r24
+ 366:	90 53       	subi	r25, 0x30	; 48
+ 368:	9b 35       	cpi	r25, 0x5B	; 91
+ 36a:	18 f4       	brcc	.+6      	; 0x372 <updateFahrmot+0x80>
+	{
+		outvalFMR = 0xFE;						//Maximale Fahrstufe (PWM muss immer da sein)
+		PORTC &= ~(1<<Qx_Fahrr_rechts);			//Fahrrichtung retour: Pin = Low
+ 36c:	ac 98       	cbi	0x15, 4	; 21
+		outvalFMR = 0xFE;						//Maximale Fahrstufe (PWM muss immer da sein)
+		PORTC |= (1<<Qx_Fahrr_rechts);			//Fahrrichtung vorwärts: Pin = High
+	}
+	else if((RemoteValue[4] < 139) & (RemoteValue[4] > 47))				//Fahrrichtung retour Maximum
+	{
+		outvalFMR = 0xFE;						//Maximale Fahrstufe (PWM muss immer da sein)
+ 36e:	8e ef       	ldi	r24, 0xFE	; 254
+ 370:	1a c0       	rjmp	.+52     	; 0x3a6 <updateFahrmot+0xb4>
+		PORTC &= ~(1<<Qx_Fahrr_rechts);			//Fahrrichtung retour: Pin = Low
+	}
+	else if((RemoteValue[4] >= 198) & (RemoteValue[4] <= 237))				//Fahren vorwärts
+ 372:	98 2f       	mov	r25, r24
+ 374:	96 5c       	subi	r25, 0xC6	; 198
+ 376:	98 32       	cpi	r25, 0x28	; 40
+ 378:	38 f4       	brcc	.+14     	; 0x388 <updateFahrmot+0x96>
+	{
+		outvalFMR = 6*(RemoteValue[4]-0xc6);	//PWM-Wert = 6*(Kanalwert - 198)
+ 37a:	98 2f       	mov	r25, r24
+ 37c:	99 0f       	add	r25, r25
+ 37e:	89 0f       	add	r24, r25
+ 380:	88 0f       	add	r24, r24
+ 382:	84 5a       	subi	r24, 0xA4	; 164
+		PORTC |= (1<<Qx_Fahrr_rechts);			//Fahrrichtung vorwärts: Pin = High
+ 384:	ac 9a       	sbi	0x15, 4	; 21
+ 386:	0f c0       	rjmp	.+30     	; 0x3a6 <updateFahrmot+0xb4>
+	}
+	else if((RemoteValue[4] <= 178) & (RemoteValue[4] >= 139))				//Fahren retour
+ 388:	98 2f       	mov	r25, r24
+ 38a:	9b 58       	subi	r25, 0x8B	; 139
+ 38c:	98 32       	cpi	r25, 0x28	; 40
+ 38e:	50 f4       	brcc	.+20     	; 0x3a4 <updateFahrmot+0xb2>
+	{
+		outvalFMR = 6*(0xb2-RemoteValue[4]);	//PWM-Wert = 6*(178 - Kanalwert)
+ 390:	98 2f       	mov	r25, r24
+ 392:	99 0f       	add	r25, r25
+ 394:	89 0f       	add	r24, r25
+ 396:	88 0f       	add	r24, r24
+ 398:	81 95       	neg	r24
+ 39a:	84 5d       	subi	r24, 0xD4	; 212
+		PORTC &= ~(1<<Qx_Fahrr_rechts);			//Fahrrichtung retour: Pin = Low
+ 39c:	ac 98       	cbi	0x15, 4	; 21
+ 39e:	03 c0       	rjmp	.+6      	; 0x3a6 <updateFahrmot+0xb4>
+	//========================================================================================
+	//Fahrmotor rechts
+	
+	if((RemoteValue[4] > 178) & (RemoteValue[4] < 198))	//Nullstellung
+	{
+		outvalFMR = 0x00;		//Mittelstellung: Motor anhalten
+ 3a0:	80 e0       	ldi	r24, 0x00	; 0
+ 3a2:	01 c0       	rjmp	.+2      	; 0x3a6 <updateFahrmot+0xb4>
+//Aus Fernsteuersignal Stromrichteransteuerung berechnen und ausgeben
+
+void updateFahrmot(void)
+{
+	uint8_t outvalFML = 0x00;		//PWM-Wert für Fahrmot links (links = OC1A)
+	uint8_t outvalFMR = 0x00;		//PWM-Wert für Fahrmot links (rechts = OC1B)
+ 3a4:	80 e0       	ldi	r24, 0x00	; 0
+	}
+	
+	//========================================================================================
+	//PWM-Werte updaten
+	
+	OCR1AL = outvalFML;
+ 3a6:	2a bd       	out	0x2a, r18	; 42
+	OCR1BL = outvalFMR;
+ 3a8:	88 bd       	out	0x28, r24	; 40
+ 3aa:	08 95       	ret
+
+000003ac <__vector_4>:
+//Interrupthandler
+
+//============================================================================================
+//Overflow-Interrupt Handler Timer 2
+ISR(TIMER2_OVF_vect)
+{
+ 3ac:	1f 92       	push	r1
+ 3ae:	0f 92       	push	r0
+ 3b0:	0f b6       	in	r0, 0x3f	; 63
+ 3b2:	0f 92       	push	r0
+ 3b4:	11 24       	eor	r1, r1
+ 3b6:	2f 93       	push	r18
+ 3b8:	8f 93       	push	r24
+ 3ba:	9f 93       	push	r25
+ 3bc:	ef 93       	push	r30
+ 3be:	ff 93       	push	r31
+	uint8_t i;
+	
+	cli();										//Interrupts global deaktivieren
+ 3c0:	f8 94       	cli
+ 3c2:	eb e6       	ldi	r30, 0x6B	; 107
+ 3c4:	f0 e0       	ldi	r31, 0x00	; 0
+//////////////////////////////////////////////////////////////////////////////////////////////
+//Interrupthandler
+
+//============================================================================================
+//Overflow-Interrupt Handler Timer 2
+ISR(TIMER2_OVF_vect)
+ 3c6:	81 e7       	ldi	r24, 0x71	; 113
+ 3c8:	90 e0       	ldi	r25, 0x00	; 0
+	uint8_t i;
+	
+	cli();										//Interrupts global deaktivieren
+	for(i=0; i<=Timearray_len; i++)
+	{
+		Timearray[i] ++;						//inkrementieren aller Zeitzähler
+ 3ca:	20 81       	ld	r18, Z
+ 3cc:	2f 5f       	subi	r18, 0xFF	; 255
+ 3ce:	21 93       	st	Z+, r18
+ISR(TIMER2_OVF_vect)
+{
+	uint8_t i;
+	
+	cli();										//Interrupts global deaktivieren
+	for(i=0; i<=Timearray_len; i++)
+ 3d0:	e8 17       	cp	r30, r24
+ 3d2:	f9 07       	cpc	r31, r25
+ 3d4:	d1 f7       	brne	.-12     	; 0x3ca <__vector_4+0x1e>
+	{
+		Timearray[i] ++;						//inkrementieren aller Zeitzähler
+	}
+	sei();										//Interrupts global aktivieren
+ 3d6:	78 94       	sei
+}
+ 3d8:	ff 91       	pop	r31
+ 3da:	ef 91       	pop	r30
+ 3dc:	9f 91       	pop	r25
+ 3de:	8f 91       	pop	r24
+ 3e0:	2f 91       	pop	r18
+ 3e2:	0f 90       	pop	r0
+ 3e4:	0f be       	out	0x3f, r0	; 63
+ 3e6:	0f 90       	pop	r0
+ 3e8:	1f 90       	pop	r1
+ 3ea:	18 95       	reti
+
+000003ec <main>:
+
+
 
 int main(void)
 {
-	init_All();
- 2a2:	0e 94 56 01 	call	0x2ac	; 0x2ac <init_All>
+	init_All();						//Grundinitialisierung
+ 3ec:	0e 94 51 01 	call	0x2a2	; 0x2a2 <init_All>
+	sei();							//Interrupts erlauben
+ 3f0:	78 94       	sei
+	PORTB |= (1<<Qx_BenzMotEin);	//Benzinmotor Startfreigabe
+ 3f2:	c6 9a       	sbi	0x18, 6	; 24
 	
-    while(1)
+	while(1)
     {
-        startRemoteIn();		//Fernsteuerwert einlesen
- 2a6:	0e 94 42 00 	call	0x84	; 0x84 <startRemoteIn>
- 2aa:	fd cf       	rjmp	.-6      	; 0x2a6 <main+0x4>
+		startRemoteIn();		//Fernsteuerwert einlesen
+ 3f4:	0e 94 42 00 	call	0x84	; 0x84 <startRemoteIn>
+		updateFahrmot();		//Fahrmotorwerte aktualisieren	
+ 3f8:	0e 94 79 01 	call	0x2f2	; 0x2f2 <updateFahrmot>
+ 3fc:	fb cf       	rjmp	.-10     	; 0x3f4 <main+0x8>
 
-000002ac <init_All>:
-{
+000003fe <_exit>:
+ 3fe:	f8 94       	cli
 
-	//I/Os initialisieren
-
-	//Port B
-	DDRB |= (1<<Qx_MLP_GenOK) | (1<<Qx_GenEin);											//Ausgänge
- 2ac:	87 b3       	in	r24, 0x17	; 23
- 2ae:	88 68       	ori	r24, 0x88	; 136
- 2b0:	87 bb       	out	0x17, r24	; 23
-	DDRB &= ~((1<<IxEntpan) | (1<<IxLadekon) | (1<<IxGenStart) | (1<<IxBenzMotAus));	//Eingänge
- 2b2:	87 b3       	in	r24, 0x17	; 23
- 2b4:	8c 7c       	andi	r24, 0xCC	; 204
- 2b6:	87 bb       	out	0x17, r24	; 23
-
-	//Port C
-	DDRC |= (1<<Qx_Fahrr_Seilw) | (1<<Qx_Fahrr_links) | (1<<Qx_Fahrr_rechts);			//Ausgänge
- 2b8:	84 b3       	in	r24, 0x14	; 20
- 2ba:	8c 61       	ori	r24, 0x1C	; 28
- 2bc:	84 bb       	out	0x14, r24	; 20
-	//--> Ausgänge für die Funkkanalvorwahl werden in "AuswertungFernst_Fkt.c" initialisiert
-
-	//Port C hat keine Eingangspins
-
-	//Port D
-	DDRD |= (1<<Qx_MLP_Stoer) | (1<<Qx_BenzMotEin) | (1<<Qpwm_FML) | (1<<Qpwm_FMR);		//Ausgänge
- 2be:	81 b3       	in	r24, 0x11	; 17
- 2c0:	82 67       	ori	r24, 0x72	; 114
- 2c2:	81 bb       	out	0x11, r24	; 17
-	DDRD &= ~(1<<Qx_BenzMotEin);														//Eingänge
- 2c4:	8e 98       	cbi	0x11, 6	; 17
-
-	//Timer 2 initialisieren für Zeitverzögerung (Allgemeiner Timer)
-
-	TCCR2 |= (1<<CS22) | (1<<CS21) | (1<<CS20);		//Prescaler = 1024 // fTimer2 = ca. 4Hz
- 2c6:	85 b5       	in	r24, 0x25	; 37
- 2c8:	87 60       	ori	r24, 0x07	; 7
- 2ca:	85 bd       	out	0x25, r24	; 37
-	TIMSK |= (1<<TOIE2);							//Interrupt erlauben bei Overflow
- 2cc:	89 b7       	in	r24, 0x39	; 57
- 2ce:	80 64       	ori	r24, 0x40	; 64
- 2d0:	89 bf       	out	0x39, r24	; 57
-
-	//Timer 1 initialisieren für Fahrmotoransteuerung
-	//Fast PWM 8Bit inverting mode
-	TCCR1A |= (1<<COM1A1) | (1<<COM1B1) | (1<<WGM10) | (1<<COM1A0) | (1<<COM1B0);
- 2d2:	8f b5       	in	r24, 0x2f	; 47
- 2d4:	81 6f       	ori	r24, 0xF1	; 241
- 2d6:	8f bd       	out	0x2f, r24	; 47
-	TCCR1A &= ~((1<<WGM11));
- 2d8:	8f b5       	in	r24, 0x2f	; 47
- 2da:	8d 7f       	andi	r24, 0xFD	; 253
- 2dc:	8f bd       	out	0x2f, r24	; 47
-	TCCR1B |= (1<<WGM12);
- 2de:	8e b5       	in	r24, 0x2e	; 46
- 2e0:	88 60       	ori	r24, 0x08	; 8
- 2e2:	8e bd       	out	0x2e, r24	; 46
-	TCCR1B &= ~(1<<WGM13);
- 2e4:	8e b5       	in	r24, 0x2e	; 46
- 2e6:	8f 7e       	andi	r24, 0xEF	; 239
- 2e8:	8e bd       	out	0x2e, r24	; 46
-
-	//Prescaler = 8 --> fPWM = 490Hz
-	TCCR1B |= (1<<CS11);
- 2ea:	8e b5       	in	r24, 0x2e	; 46
- 2ec:	82 60       	ori	r24, 0x02	; 2
- 2ee:	8e bd       	out	0x2e, r24	; 46
-	TCCR1B &= ~((1<<CS12) | (1<<CS10));
- 2f0:	8e b5       	in	r24, 0x2e	; 46
- 2f2:	8a 7f       	andi	r24, 0xFA	; 250
- 2f4:	8e bd       	out	0x2e, r24	; 46
-
-	//Fernsteuerungsauswertung initialisieren
-	RemoteInit();
- 2f6:	0e 94 3e 00 	call	0x7c	; 0x7c <RemoteInit>
- 2fa:	08 95       	ret
-
-000002fc <_exit>:
- 2fc:	f8 94       	cli
-
-000002fe <__stop_program>:
- 2fe:	ff cf       	rjmp	.-2      	; 0x2fe <__stop_program>
+00000400 <__stop_program>:
+ 400:	ff cf       	rjmp	.-2      	; 0x400 <__stop_program>

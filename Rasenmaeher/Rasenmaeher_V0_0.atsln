@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Atmel Studio Solution File, Format Version 11.00
-Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Rasenmaeher", "Rasenmaeher.cproj", "{D6BCF929-60A4-498B-B0D8-D7070ABDD775}"
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Rasenmaeher_V0_0", "Rasenmaeher_V0_0.cproj", "{431202A4-7201-491D-82DC-1E34CF6016DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|AVR = Release|AVR
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D6BCF929-60A4-498B-B0D8-D7070ABDD775}.Debug|AVR.ActiveCfg = Debug|AVR
-		{D6BCF929-60A4-498B-B0D8-D7070ABDD775}.Debug|AVR.Build.0 = Debug|AVR
-		{D6BCF929-60A4-498B-B0D8-D7070ABDD775}.Release|AVR.ActiveCfg = Release|AVR
-		{D6BCF929-60A4-498B-B0D8-D7070ABDD775}.Release|AVR.Build.0 = Release|AVR
+		{431202A4-7201-491D-82DC-1E34CF6016DF}.Debug|AVR.ActiveCfg = Debug|AVR
+		{431202A4-7201-491D-82DC-1E34CF6016DF}.Debug|AVR.Build.0 = Debug|AVR
+		{431202A4-7201-491D-82DC-1E34CF6016DF}.Release|AVR.ActiveCfg = Release|AVR
+		{431202A4-7201-491D-82DC-1E34CF6016DF}.Release|AVR.Build.0 = Release|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
